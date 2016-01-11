@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# AvrStudio Solution File, Format Version 11.00
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "motor0", "motor0\motor0.cproj", "{EFC2B596-CC51-43AF-AA0E-3D4254DFA17F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AVR = Debug|AVR
+		Release|AVR = Release|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EFC2B596-CC51-43AF-AA0E-3D4254DFA17F}.Debug|AVR.ActiveCfg = Debug|AVR
+		{EFC2B596-CC51-43AF-AA0E-3D4254DFA17F}.Debug|AVR.Build.0 = Debug|AVR
+		{EFC2B596-CC51-43AF-AA0E-3D4254DFA17F}.Release|AVR.ActiveCfg = Release|AVR
+		{EFC2B596-CC51-43AF-AA0E-3D4254DFA17F}.Release|AVR.Build.0 = Release|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
