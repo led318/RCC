@@ -1,16 +1,15 @@
 /*
-* RCC_AvrSender.cpp
-*
-* Created: 11/01/2016 21:08:06
-* Author : Artem
-*/
+ * RCC_AVR_Transmitter.c
+ *
+ * Created: 31/01/2016 14:04:18
+ * Author : Artem
+ */ 
 
-#include "communication_usart.h"
 #include <avr/io.h>
 
 int main(void)
 {
-    communication_usart::USART_Init();
+    USART_Init();
     
     DDRB = 0xFF; //Конфигурирование порта на выход
     PORTB = 0x00; //Отключаем подтягивающие резисторы порта
@@ -19,14 +18,13 @@ int main(void)
     
     char data;
     
-    while (true)
+    while (1)
     {
-        data = communication_usart::USART_Receive();
+        data = USART_Receive();
         
         if(data != '0')
         {
-            communication_usart::USART_Transmit(data);
+            USART_Transmit(data);
         }
     }
 }
-

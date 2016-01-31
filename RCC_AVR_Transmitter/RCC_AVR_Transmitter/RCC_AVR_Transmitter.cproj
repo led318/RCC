@@ -3,29 +3,29 @@
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>7.0</ProjectVersion>
-    <ToolchainName>com.Atmel.AVRGCC8.CPP</ToolchainName>
+    <ToolchainName>com.Atmel.AVRGCC8.C</ToolchainName>
     <ProjectGuid>dce6c7e3-ee26-4d79-826b-08594b9ad897</ProjectGuid>
-    <avrdevice>ATtiny2313A</avrdevice>
+    <avrdevice>ATtiny2313</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>Executable</OutputType>
-    <Language>CPP</Language>
+    <Language>C</Language>
     <OutputFileName>$(MSBuildProjectName)</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
-    <AssemblyName>RCC_AvrSender</AssemblyName>
-    <Name>RCC_AvrSender</Name>
-    <RootNamespace>RCC_AvrSender</RootNamespace>
+    <AssemblyName>RCC_AVR_Transmitter</AssemblyName>
+    <Name>RCC_AVR_Transmitter</Name>
+    <RootNamespace>RCC_AVR_Transmitter</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
     <CacheFlash>true</CacheFlash>
     <ProgFlashFromRam>true</ProgFlashFromRam>
-    <RamSnippetAddress>0x20000000</RamSnippetAddress>
+    <RamSnippetAddress />
     <UncachedRange />
     <preserveEEPROM>true</preserveEEPROM>
-    <OverrideVtorValue>exception_table</OverrideVtorValue>
+    <OverrideVtorValue />
     <BootSegment>2</BootSegment>
-    <eraseonlaunchrule>0</eraseonlaunchrule>
+    <eraseonlaunchrule>1</eraseonlaunchrule>
     <AsfFrameworkConfig>
       <framework-data xmlns="">
   <options />
@@ -38,24 +38,11 @@
   </dependencies>
 </framework-data>
     </AsfFrameworkConfig>
-    <avrtool>com.atmel.avrdbg.tool.simulator</avrtool>
-    <avrtoolserialnumber />
-    <avrdeviceexpectedsignature>0x1E910A</avrdeviceexpectedsignature>
-    <com_atmel_avrdbg_tool_simulator>
-      <ToolOptions xmlns="">
-        <InterfaceProperties>
-        </InterfaceProperties>
-      </ToolOptions>
-      <ToolType xmlns="">com.atmel.avrdbg.tool.simulator</ToolType>
-      <ToolNumber xmlns="">
-      </ToolNumber>
-      <ToolName xmlns="">Simulator</ToolName>
-    </com_atmel_avrdbg_tool_simulator>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
-      <AvrGccCpp>
-  <avrgcc.common.Device>-mmcu=attiny2313a -B "%24(PackRepoDir)\atmel\ATtiny_DFP\1.0.71\gcc\dev\attiny2313a"</avrgcc.common.Device>
+      <AvrGcc>
+  <avrgcc.common.Device>-mmcu=attiny2313 -B "%24(PackRepoDir)\atmel\ATtiny_DFP\1.0.71\gcc\dev\attiny2313"</avrgcc.common.Device>
   <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
   <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
   <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
@@ -77,34 +64,18 @@
   <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
   <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
   <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-  <avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>
-  <avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>
-  <avrgcccpp.compiler.symbols.DefSymbols>
-    <ListValues>
-      <Value>NDEBUG</Value>
-    </ListValues>
-  </avrgcccpp.compiler.symbols.DefSymbols>
-  <avrgcccpp.compiler.directories.IncludePaths>
-    <ListValues>
-      <Value>%24(PackRepoDir)\atmel\ATtiny_DFP\1.0.71\include</Value>
-    </ListValues>
-  </avrgcccpp.compiler.directories.IncludePaths>
-  <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
-  <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
-  <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
-  <avrgcccpp.compiler.warnings.AllWarnings>True</avrgcccpp.compiler.warnings.AllWarnings>
-  <avrgcccpp.linker.libraries.Libraries>
+  <avrgcc.linker.libraries.Libraries>
     <ListValues>
       <Value>libm</Value>
     </ListValues>
-  </avrgcccpp.linker.libraries.Libraries>
-</AvrGccCpp>
+  </avrgcc.linker.libraries.Libraries>
+</AvrGcc>
     </ToolchainSettings>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
-      <AvrGccCpp>
-  <avrgcc.common.Device>-mmcu=attiny2313a -B "%24(PackRepoDir)\atmel\ATtiny_DFP\1.0.71\gcc\dev\attiny2313a"</avrgcc.common.Device>
+      <AvrGcc>
+  <avrgcc.common.Device>-mmcu=attiny2313 -B "%24(PackRepoDir)\atmel\ATtiny_DFP\1.0.71\gcc\dev\attiny2313"</avrgcc.common.Device>
   <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
   <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
   <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
@@ -127,46 +98,23 @@
   <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
   <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
   <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-  <avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>
-  <avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>
-  <avrgcccpp.compiler.symbols.DefSymbols>
-    <ListValues>
-      <Value>DEBUG</Value>
-    </ListValues>
-  </avrgcccpp.compiler.symbols.DefSymbols>
-  <avrgcccpp.compiler.directories.IncludePaths>
-    <ListValues>
-      <Value>%24(PackRepoDir)\atmel\ATtiny_DFP\1.0.71\include</Value>
-    </ListValues>
-  </avrgcccpp.compiler.directories.IncludePaths>
-  <avrgcccpp.compiler.optimization.level>Optimize (-O1)</avrgcccpp.compiler.optimization.level>
-  <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
-  <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
-  <avrgcccpp.compiler.optimization.DebugLevel>Default (-g2)</avrgcccpp.compiler.optimization.DebugLevel>
-  <avrgcccpp.compiler.warnings.AllWarnings>True</avrgcccpp.compiler.warnings.AllWarnings>
-  <avrgcccpp.linker.libraries.Libraries>
+  <avrgcc.linker.libraries.Libraries>
     <ListValues>
       <Value>libm</Value>
     </ListValues>
-  </avrgcccpp.linker.libraries.Libraries>
-  <avrgcccpp.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcccpp.assembler.debugging.DebugLevel>
-</AvrGccCpp>
+  </avrgcc.linker.libraries.Libraries>
+  <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
+</AvrGcc>
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="communication_spi.cpp">
+    <Compile Include="comm_spi.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="communication_spi.h">
+    <Compile Include="comm_usart.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="communication_usart.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="communication_usart.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="main.cpp">
+    <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>

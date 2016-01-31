@@ -1,12 +1,10 @@
 /*
-* communication_usart.cpp
+* comm_usart.c
 *
-* Created: 11/01/2016 21:09:37
-* Author: Artem
+* Created: 31/01/2016 14:06:38
+*  Author: Artem
 */
 
-
-#include "communication_usart.h"
 #include <avr/io.h>
 
 #define RXEN 4
@@ -14,17 +12,7 @@
 #define USBS 3
 #define UCSZ0 1
 
-// default constructor
-communication_usart::communication_usart()
-{
-} //communication_usart
-
-// default destructor
-communication_usart::~communication_usart()
-{
-} //~communication_usart
-
-void communication_usart::USART_Init()
+void USART_Init()
 {
     UCSRB = 0x00; //disable while setting baud rate
     UCSRA = 0x00; //Bit1–U2X=0: Double the USART transmission speed
@@ -39,7 +27,7 @@ void communication_usart::USART_Init()
 }
 
 
-char communication_usart::USART_Receive() //Функция приема данных
+char USART_Receive() //Функция приема данных
 {
     //while (!(UCSRA & (1<<RXC))); //Ожидание приема символа
     //return UDR; //Возврат содержимого буфера приема символа
@@ -47,12 +35,12 @@ char communication_usart::USART_Receive() //Функция приема данных
     if(UCSRA & (1<<RXC))
     {
         return UDR;
-    } else {
+        } else {
         return '0';
     }
 }
 
-void communication_usart::USART_Transmit(char data) //Функция отправки данных
+void USART_Transmit(char data) //Функция отправки данных
 {
     while (!(UCSRA & (1<<UDRE)) ); //Ожидание опустошения буфера приема
     {
@@ -60,7 +48,7 @@ void communication_usart::USART_Transmit(char data) //Функция отправки данных
     }
 }
 
-void communication_usart::USART_TransmitString(char* string)
+void USART_TransmitString(char* string)
 {
     while (*string)
     {
