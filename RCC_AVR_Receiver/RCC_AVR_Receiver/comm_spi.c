@@ -17,28 +17,28 @@ uint8_t *data;
 uint8_t *arr;
 
 void SetCELow(void){
-    CLEARBIT(PORTB, 3);	//CE l?g
+    CLEARBIT(PORTB, 6);	//CE l?g
 }
 
 void SetCEHigh(void){
-    SETBIT(PORTB, 3);	//CE h?g=s?nd data	INT0 interruptet k?rs n?r s?ndningen lyckats och om EN_AA ?r p?, ocks? svaret fr?n recivern ?r mottagen
+    SETBIT(PORTB, 6);	//CE h?g=s?nd data	INT0 interruptet k?rs n?r s?ndningen lyckats och om EN_AA ?r p?, ocks? svaret fr?n recivern ?r mottagen
 }
 
 void SetCSNLow(void){
-    CLEARBIT(PORTB, 4);	//CSN low - nRF starts to listen for command
+    CLEARBIT(PORTD, 4);	//CSN low - nRF starts to listen for command
 }
 
 void SetCSNHigh(void){
-    SETBIT(PORTB, 4);	//CSN IR_High
+    SETBIT(PORTD, 4);	//CSN IR_High
 }
 
 void InitSPI(void)
 {
     /*
-    //Set SCK (PB7), MOSI (PB6), CSN (PB4) & CE (PB3)  as outport
+    //Set SCK (PB5), MOSI (PB3), CSN (PD4) & CE (PB6)  as outport
     DDRB |= (1<<PB7) | (1<<PB6) | (1<<PB4) |(1<<PB3);
     
-    //Set MOSI (PB5) as input OBS: connects to nRF MISO
+    //Set MOSI (PB4) as input OBS: connects to nRF MISO
     DDRB &= ~(1<<PB5);
     PORTB |= (1<<PB5);
     
@@ -48,10 +48,12 @@ void InitSPI(void)
     SetCELow();
     */
     
-    DDRB |= (1<<PB6);
-    DDRB |= (1<<PB7);
-    DDRB |= (1<<PB4);
-    DDRB &= ~(1<<PB5);        
+    DDRB |= (1<<PORTB5);
+    DDRB |= (1<<PORTB3);
+    DDRD |= (1<<PORTD4);
+    DDRB &= ~(1<<PORTB4);  
+    
+    PORTD &= ~(1<<PORTD4);
     
     SetCSNHigh();
     SetCELow();
@@ -59,6 +61,7 @@ void InitSPI(void)
 
 char WriteByteSPI(unsigned char cData)
 {  
+    /*
     //Load byte to Data register
     USIDR = cData;
         
@@ -69,6 +72,13 @@ char WriteByteSPI(unsigned char cData)
     }            
     
     return (USIDR);
+    */
+    
+    SPDR = cData;
+    
+    while(!(SPSR & (1 << SPIF)));
+    
+    return SPDR;
 }
 
 uint8_t GetReg(uint8_t reg)
@@ -198,6 +208,17 @@ void nrf24L01_init(void)
     _delay_ms(100);
 
     //sei();
+}
+
+void receive_payload(void)
+{
+    sei();		//Enable global interrupt
+    
+    SetCEHigh();
+    _delay_ms(1000);	//lyssnar i 1s och om mottaget g?r int0-interruptvektor ig?ng
+    SetCELow();
+    
+    cli();	//Disable global interrupt
 }
 
 //Send data

@@ -1,21 +1,20 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes'?>
 <WORKSPACE>
  <FRAME activewindow="0">
-  <PLACEMENT>2c0000000000000001000000c1fffffffffffffffffffffffffffffff40000000000000082050000ee020000</PLACEMENT>
+  <PLACEMENT>2c0000000200000003000000c282ffff0083fffffffffffffffffffff40000000000000082050000ee020000</PLACEMENT>
   <WINDOW type="default" module="ISIS"/>
  </FRAME>
  <MODULE name="VSMDEBUG">
   <PWI>
-   <POPUP w="800" x="205" flags="00000002" y="145" h="200" pid="0" iid="-1">
+   <POPUP w="800" x="128" flags="00000002" y="128" h="200" pid="0" iid="-1">
     <PROPERTIES>
      <ITEM name="Message Column Width">665</ITEM>
      <ITEM name="ShowGrid">No</ITEM>
      <ITEM name="Source Column Width">100</ITEM>
-     <ITEM name="Time Column Width">120</ITEM>
      <ITEM name="Version">100</ITEM>
     </PROPERTIES>
    </POPUP>
-   <POPUP w="350" x="225" flags="00000032" y="165" h="200" pid="1" iid="-1">
+   <POPUP w="350" x="148" flags="00000032" y="148" h="200" pid="1" iid="-1">
     <PROPERTIES>
      <ITEM name="Address Column Width">83</ITEM>
      <ITEM name="AutoResize">No</ITEM>
@@ -32,16 +31,16 @@
      <ITEM name="nItems">0</ITEM>
     </PROPERTIES>
    </POPUP>
-   <POPUP w="450" x="384" flags="00000022" y="470" h="240" pid="0" iid="2">
+   <POPUP w="450" x="854" flags="00008023" y="477" h="250" pid="0" iid="2">
     <PROPERTIES>
      <ITEM name="AutoEcho">1</ITEM>
      <ITEM name="HexMode">0</ITEM>
     </PROPERTIES>
    </POPUP>
-   <POPUP w="30" x="265" flags="00000008" y="205" h="16" pid="3" iid="4">
+   <POPUP w="30" x="188" flags="00000008" y="188" h="16" pid="3" iid="1">
     <PROPERTIES/>
    </POPUP>
-   <POPUP w="8" x="285" flags="0000000a" y="225" h="1" pid="10" iid="4">
+   <POPUP w="8" x="208" flags="0000000a" y="208" h="1" pid="10" iid="1">
     <PROPERTIES>
      <ITEM name="DataType">2</ITEM>
      <ITEM name="DispChars">Yes</ITEM>
@@ -51,7 +50,7 @@
      <ITEM name="TopLineAddress">00000000</ITEM>
     </PROPERTIES>
    </POPUP>
-   <POPUP w="8" x="305" flags="0000000a" y="245" h="16" pid="6" iid="4">
+   <POPUP w="8" x="228" flags="0000000a" y="228" h="32" pid="6" iid="1">
     <PROPERTIES>
      <ITEM name="DataType">2</ITEM>
      <ITEM name="DispChars">Yes</ITEM>
@@ -61,7 +60,7 @@
      <ITEM name="TopLineAddress">00000000</ITEM>
     </PROPERTIES>
    </POPUP>
-   <POPUP w="16" x="325" flags="0000000a" y="265" h="32" pid="7" iid="4">
+   <POPUP w="16" x="248" flags="0000000a" y="248" h="32" pid="7" iid="1">
     <PROPERTIES>
      <ITEM name="DataType">2</ITEM>
      <ITEM name="DispChars">Yes</ITEM>
@@ -71,7 +70,7 @@
      <ITEM name="TopLineAddress">00000000</ITEM>
     </PROPERTIES>
    </POPUP>
-   <POPUP w="16" x="345" flags="00000000" y="285" h="32" pid="14" iid="4">
+   <POPUP w="16" x="268" flags="80000000" y="268" h="32" pid="14" iid="1">
     <PROPERTIES>
      <ITEM name="DataType">2</ITEM>
      <ITEM name="DispChars">Yes</ITEM>
@@ -81,17 +80,17 @@
      <ITEM name="TopLineAddress">00000000</ITEM>
     </PROPERTIES>
    </POPUP>
-   <POPUP w="16" x="365" flags="0000000a" y="305" h="32" pid="4" iid="4">
+   <POPUP w="16" x="288" flags="0000000a" y="288" h="32" pid="4" iid="1">
     <PROPERTIES>
      <ITEM name="DataType">2</ITEM>
      <ITEM name="DispChars">Yes</ITEM>
      <ITEM name="DispFormat">2</ITEM>
      <ITEM name="ShowChanges">Yes</ITEM>
      <ITEM name="ShowToolTips">Yes</ITEM>
-     <ITEM name="TopLineAddress">00000060</ITEM>
+     <ITEM name="TopLineAddress">00000100</ITEM>
     </PROPERTIES>
    </POPUP>
-   <POPUP w="16" x="385" flags="0000000a" y="325" h="8" pid="13" iid="4">
+   <POPUP w="16" x="308" flags="0000000a" y="308" h="8" pid="13" iid="1">
     <PROPERTIES>
      <ITEM name="DataType">2</ITEM>
      <ITEM name="DispChars">Yes</ITEM>
@@ -99,22 +98,6 @@
      <ITEM name="ShowChanges">Yes</ITEM>
      <ITEM name="ShowToolTips">Yes</ITEM>
      <ITEM name="TopLineAddress">00000020</ITEM>
-    </PROPERTIES>
-   </POPUP>
-   <POPUP w="898" x="468" flags="00000022" y="105" h="349" pid="0" iid="1">
-    <PROPERTIES>
-     <ITEM name="ComboBox1000">3</ITEM>
-     <ITEM name="ComboBox1001">d</ITEM>
-     <ITEM name="ComboBox1002">3</ITEM>
-     <ITEM name="ComboBox1003">d</ITEM>
-     <ITEM name="ComboBox1004">3</ITEM>
-     <ITEM name="ComboBox1005">d</ITEM>
-     <ITEM name="ComboBox1006">3</ITEM>
-     <ITEM name="ComboBox1007">d</ITEM>
-     <ITEM name="ComboBox1008">3</ITEM>
-     <ITEM name="ComboBox1009">d</ITEM>
-     <ITEM name="HSplitter1Pos">100</ITEM>
-     <ITEM name="VSplitter1Pos">238</ITEM>
     </PROPERTIES>
    </POPUP>
   </PWI>
