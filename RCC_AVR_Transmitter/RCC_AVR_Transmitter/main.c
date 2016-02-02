@@ -55,8 +55,8 @@ ISR(USART_RX_vect)	///Vector that triggers when computer sends something to the 
         //This probably should wait until all the bytes is received, but works fine in to send and receive at the same time... =)
     }
 
-    //transmit_payload(W_buffer);	//S?nder datan
-    
+    transmit_payload(W_buffer);	//S?nder datan
+            
     USART_Transmit('#');	//visar att chipet mottagit datan...
 }
 
@@ -86,17 +86,12 @@ void INT1_interrupt_init(void){
 
 int main(void)
 {    
-    init_led();
-    
-    _delay_ms(500);
-    
-    
+    init_led();    
+    _delay_ms(100);
+        
     USART_Init();
     InitSPI();
-    INT1_interrupt_init();
-    
-    _delay_ms(10000);
-    
+    INT1_interrupt_init();   
     
     SETBIT(PORTB, 2); 
     
@@ -104,7 +99,7 @@ int main(void)
       
     
     USART_Transmit('0');
-    USART_Transmit(GetReg(STATUS));
+    //USART_Transmit(GetReg(STATUS));
     
     CLEARBIT(PORTB, 2);
     sei();//разрешение прерываний

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes'?>
 <WORKSPACE>
  <FRAME activewindow="1">
-  <PLACEMENT>2c0000000000000001000000c282ffff0083ffffffffffffffffffff4500000009000000d3040000f7020000</PLACEMENT>
+  <PLACEMENT>2c0000000200000003000000c282ffff0083fffffffffffffffffffff40000000000000082050000ee020000</PLACEMENT>
   <WINDOW type="default" module="ISIS"/>
   <WINDOW type="default" module="VSMDEBUG"/>
  </FRAME>
@@ -33,7 +33,7 @@
      <ITEM name="nItems">0</ITEM>
     </PROPERTIES>
    </POPUP>
-   <POPUP w="450" x="822" flags="00008023" y="371" h="250" pid="0" iid="2">
+   <POPUP w="450" x="384" flags="00000023" y="470" h="240" pid="0" iid="2">
     <PROPERTIES>
      <ITEM name="AutoEcho">1</ITEM>
      <ITEM name="HexMode">0</ITEM>
@@ -100,6 +100,22 @@
      <ITEM name="ShowChanges">Yes</ITEM>
      <ITEM name="ShowToolTips">Yes</ITEM>
      <ITEM name="TopLineAddress">00000020</ITEM>
+    </PROPERTIES>
+   </POPUP>
+   <POPUP w="898" x="519" flags="00008023" y="105" h="349" pid="0" iid="1">
+    <PROPERTIES>
+     <ITEM name="ComboBox1000">3</ITEM>
+     <ITEM name="ComboBox1001">d</ITEM>
+     <ITEM name="ComboBox1002">3</ITEM>
+     <ITEM name="ComboBox1003">d</ITEM>
+     <ITEM name="ComboBox1004">3</ITEM>
+     <ITEM name="ComboBox1005">d</ITEM>
+     <ITEM name="ComboBox1006">3</ITEM>
+     <ITEM name="ComboBox1007">d</ITEM>
+     <ITEM name="ComboBox1008">3</ITEM>
+     <ITEM name="ComboBox1009">d</ITEM>
+     <ITEM name="HSplitter1Pos">100</ITEM>
+     <ITEM name="VSplitter1Pos">238</ITEM>
     </PROPERTIES>
    </POPUP>
   </PWI>

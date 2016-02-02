@@ -9,7 +9,6 @@
 #include <stdio.h>
 #define F_CPU 8000000UL  // 8 MHz
 #include <util/delay.h>
-//#include <avr/interrupt.h>
 
 #include "nRF24L01.h"
 #include "pins_actions.h"
@@ -34,10 +33,9 @@ void SetCSNHigh(void){
     SETBIT(PORTB, 4);	//CSN IR_High
 }
 
-/*****************SPI*****************************/  //Skickar data mellan chip och nrf'ens chip
-//initiering
 void InitSPI(void)
 {
+    /*
     //Set SCK (PB7), MOSI (PB6), CSN (PB4) & CE (PB3)  as outport
     DDRB |= (1<<PB7) | (1<<PB6) | (1<<PB4) |(1<<PB3);
     
@@ -49,27 +47,33 @@ void InitSPI(void)
     
     SetCSNHigh();
     SetCELow();
+    */
+    
+    DDRB |= (1<<PB6);
+    DDRB |= (1<<PB7);
+    DDRB |= (1<<PB4);
+    DDRB &= ~(1<<PB5);  
+    
+    PORTB &= ~(1<<PB4);
+    
+    SetCSNHigh();
+    SetCELow();
 }
 
-//Skickar kommando till nrf'en ? f?r d? tillbaka en byte
 char WriteByteSPI(unsigned char cData)
-{
+{  
     //Load byte to Data register
     USIDR = cData;
-    
+        
     USISR |= (1<<USIOIF); // clear flag to be able to receive new data
-    
-    /* Wait for transmission complete */
-    while((USISR & (1<<USIOIF)) == 0);
+    while(!(USISR & (1<<USIOIF))) // Wait for transmission complete
     {
-        USICR |= (1<<USITC); //???
-    }
+        USICR |= (1<<USIWM0) | (1<<USICS1) | (1<<USICLK) | (1<<USITC);
+    }            
     
-    return USIDR;
+    return (USIDR);
 }
-////////////////////////////////////////////////////
 
-//funktion f?r att h?mta n?t av nrf's register
 uint8_t GetReg(uint8_t reg)
 {
     _delay_us(10);
@@ -130,6 +134,7 @@ uint8_t *WriteToNrf(uint8_t ReadWrite, uint8_t reg, uint8_t *val, uint8_t antVal
             _delay_us(10);
         }
     }
+    
     SetCSNHigh();
     
     //sei(); //enable global interrupt
@@ -137,12 +142,8 @@ uint8_t *WriteToNrf(uint8_t ReadWrite, uint8_t reg, uint8_t *val, uint8_t antVal
     return ret;	//return an array
 }
 
-
-//initierar nrf'en (obs nrfen m?ste vala i vila n?r detta sker CE-l?g)
 void nrf24L01_init(void)
 {
-    USART_Transmit('a');
-    
     _delay_ms(100);	//allow radio to reach power down if shut down
     
     uint8_t val[5];	//en array av integers som skickar v?rden till WriteToNrf-funktionen
@@ -152,37 +153,25 @@ void nrf24L01_init(void)
     val[0]=0x01;	//ger f?rsta integern i arrayen "val" ett v?rde: 0x01=EN_AA p? pipe P0.
     WriteToNrf(W, EN_AA, val, 1);	//W=ska skriva/?ndra n?t i nrfen, EN_AA=vilket register ska ?ndras, val=en array med 1 till 32 v?rden  som ska skrivas till registret, 1=antal v?rden som ska l?sas ur "val" arrayen.
     
-    USART_Transmit('b');
-    
     //SETUP_RETR (the setup for "EN_AA")
     val[0]=0x2F;	//0b0010 00011 "2" sets it up to 750uS delay between every retry (at least 500us at 250kbps and if payload >5bytes in 1Mbps, and if payload >15byte in 2Mbps) "F" is number of retries (1-15, now 15)
     WriteToNrf(W, SETUP_RETR, val, 1);
-    
-    USART_Transmit('c');
     
     //V?ljer vilken/vilka datapipes (0-5) som ska vara ig?ng.
     val[0]=0x01;
     WriteToNrf(W, EN_RXADDR, val, 1); //enable data pipe 0
 
-    USART_Transmit('d');
-
     //RF_Adress width setup (hur m?nga byte ska RF_Adressen best? av? 1-5 bytes) (5bytes s?krare d? det finns st?rningar men l?ngsammare data?verf?ring) 5addr-32data-5addr-32data....
     val[0]=0x03;
     WriteToNrf(W, SETUP_AW, val, 1); //0b0000 00011 motsvarar 5byte RF_Adress
-    
-    USART_Transmit('e');
     
     //RF channel setup - v?ljer frekvens 2,400-2,527GHz 1MHz/steg
     val[0]=0x01;
     WriteToNrf(W, RF_CH, val, 1); //RF channel registry 0b0000 0001 = 2,401GHz (samma p? TX ? RX)
 
-    USART_Transmit('f');
-
     //RF setup	- v?ljer effekt och ?verf?ringshastighet
     val[0]=0x07;
     WriteToNrf(W, RF_SETUP, val, 1); //00000111 bit 3="0" ger l?gre ?verf?ringshastighet 1Mbps=L?ngre r?ckvidd, bit 2-1 ger effektl?ge h?g (-0dB) ("11"=(-18dB) ger l?gre effekt =str?msn?lare men l?gre range)
-
-    USART_Transmit('g');
 
     //RX RF_Adress setup 5 byte - v?ljer RF_Adressen p? Recivern (M?ste ges samma RF_Adress om Transmittern har EN_AA p?slaget!!!)
     int i;
@@ -192,8 +181,6 @@ void nrf24L01_init(void)
     }
     WriteToNrf(W, RX_ADDR_P0, val, 5); //0b0010 1010 write registry - eftersom vi valde pipe 0 i "EN_RXADDR" ovan, ger vi RF_Adressen till denna pipe. (kan ge olika RF_Adresser till olika pipes och d?rmed lyssna p? olika transmittrar)
     
-    USART_Transmit('h');
-    
     //TX RF_Adress setup 5 byte -  v?ljer RF_Adressen p? Transmittern (kan kommenteras bort p? en "ren" Reciver)
     //int i; //?teranv?nder f?reg?ende i...
     for(i=0; i<5; i++)
@@ -202,19 +189,13 @@ void nrf24L01_init(void)
     }
     WriteToNrf(W, TX_ADDR, val, 5);
 
-    USART_Transmit('i');
-
     // payload width setup - Hur m?nga byte ska skickas per s?ndning? 1-32byte
     val[0]=dataLen;		//"0b0000 0001"=1 byte per 5byte RF_Adress  (kan v?lja upp till "0b00100000"=32byte/5byte RF_Adress) (definierat h?gst uppe i global variabel!)
     WriteToNrf(W, RX_PW_P0, val, 1);
     
-    USART_Transmit('j');
-    
     //CONFIG reg setup - Nu ?r allt inst?llt, boota upp nrf'en och g?r den antingen Transmitter lr Reciver
     val[0]=0x1E;  //0b0000 1110 config registry	bit "1":1=power up,  bit "0":0=transmitter (bit "0":1=Reciver) (bit "4":1=>mask_Max_RT,dvs IRQ-vektorn reagerar inte om s?ndningen misslyckades.
     WriteToNrf(W, CONFIG, val, 1);
-
-    USART_Transmit('k');
 
     //device need 1.5ms to reach standby mode
     _delay_ms(100);
