@@ -48,7 +48,6 @@ ISR(INT0_vect)
     W_buffer[0] = '0';
     transmit_payload(W_buffer);
     USART_Transmit(W_buffer[0]);
-    
 
     sei();
 }
@@ -138,7 +137,7 @@ int main(void)
     nrf24L01_init();    
     
     USART_Transmit('0');
-    USART_Transmit(GetReg(STATUS));
+    USART_Transmit(GetReg(STATUS));    
     
     LedOff();
     sei();//разрешение прерываний
