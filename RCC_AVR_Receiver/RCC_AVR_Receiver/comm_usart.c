@@ -14,7 +14,7 @@
 #define UCSZ0 1
 
 //#define FOSC 8000000
-//#define BAUD 19200
+//#define BAUD 1200
 //#define MYUBRR FOSC/16/BAUD-1
 
 void USART_Init()
@@ -32,8 +32,8 @@ void USART_Init()
     //	bit3-Transmit enable
     */
     
-    UBRR0H = 0x00; //MYUBRR >> 8;
-    UBRR0L = 0x19; //MYUBRR;
+    UBRR0H = 0x00; //MYUBRR >> 8;    
+    UBRR0L = 0xBF; //MYUBRR;
     UCSR0B = ((1<<RXEN0)|(1<<TXEN0) | (1<<RXCIE0));    
 }
 

@@ -7,7 +7,7 @@
 
 #include <avr/io.h>
 #include <stdio.h>
-#define F_CPU 8000000UL  // 8 MHz
+#define F_CPU 3686400UL
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include "nRF24L01.h"
@@ -19,11 +19,11 @@ ISR(INT0_vect)	//vektorn som g?r ig?ng n?r transmit_payload lyckats s?nda eller 
 {
     cli();	//Disable global interrupt
     
-    SETBIT(PORTD, 3); //led on
-    _delay_ms(150);
-    CLEARBIT(PORTD, 3); //led off
+    SETBIT(PORTD, 7); //led on
+    _delay_ms(50);
+    CLEARBIT(PORTD, 7); //led off
     
-    USART_Transmit('1');
+    //USART_Transmit('1');
     
     SetCELow();
     
@@ -41,9 +41,9 @@ ISR(INT0_vect)	//vektorn som g?r ig?ng n?r transmit_payload lyckats s?nda eller 
  
 ISR(USART_RX_vect)	///Vector that triggers when computer sends something to the Atmega88
 {
-    SETBIT(PORTD, 3); //led on
-    _delay_ms(150);
-    CLEARBIT(PORTD, 3); //led off
+    SETBIT(PORTD, 7); //led on
+    _delay_ms(50);
+    CLEARBIT(PORTD, 7); //led off
     
     uint8_t W_buffer[dataLen];	//Creates a buffer to receive data with specified length (ex. dataLen = 5 bytes)
     
@@ -54,18 +54,19 @@ ISR(USART_RX_vect)	///Vector that triggers when computer sends something to the 
         USART_Transmit(W_buffer[i]);	//Transmit the Data back to the computer to make sure it was correctly received
         //This probably should wait until all the bytes is received, but works fine in to send and receive at the same time... =)
     }    
+         
+    transmit_payload(W_buffer);	//S?nder datan
             
     USART_Transmit('#');	//visar att chipet mottagit datan...
 }
 
 void init_led(void){
-    DDRD |= (1<<PORTD3); // init PB2 as output for led
+    DDRD |= (1<<PORTD7); // init PB7 as output for led
     
-    SETBIT(PORTD, 3);
-    _delay_ms(1000);
-    CLEARBIT(PORTD, 3); //led off
+    SETBIT(PORTD, 7);
+    _delay_ms(500);
+    CLEARBIT(PORTD, 7);    
 }
-
 
 void INT0_interrupt_init(void){
     DDRD &= ~(1<<DDD2);	//Extern interrupt p? INT0, dvs s?tt den till input!    
@@ -81,43 +82,30 @@ void INT0_interrupt_init(void){
     EIFR=0b01000000;          
 }
 
-
 int main(void)
 {    
-    init_led();       
+    init_led(); 
+    
+    _delay_ms(5000);
+    
+    SETBIT(PORTD, 7);
+    _delay_ms(1000);      
         
     USART_Init();
-    //InitSPI();
+    InitSPI();
     INT0_interrupt_init();   
     
-    SETBIT(PORTD, 3); 
-    
-    //nrf24L01_init();
-      
+    //nrf24L01_init();     
     
     USART_Transmit('0');
     //USART_Transmit(GetReg(STATUS));
     
-    CLEARBIT(PORTD, 3);
-    
+    //CLEARBIT(PORTD, 7);    
     sei();//разрешение прерываний
-    while(1){}
-    
-    
-    
-    /*
-    char data;
-    
-    while (1)
-    {
-        data = USART_Receive();
         
-        if(data != '0')
-        {
-            USART_Transmit(data);
-        }
-    }
-    */
+    CLEARBIT(PORTD, 7);
+
+    while(1){}
 }
 
 

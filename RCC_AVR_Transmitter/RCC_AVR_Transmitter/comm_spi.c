@@ -53,6 +53,8 @@ void InitSPI(void)
     DDRB |= (1<<PB4);
     DDRB &= ~(1<<PB5);        
     
+    DDRB |= (1<<PB3); //CE
+    
     SetCSNHigh();
     SetCELow();
 }

@@ -43,6 +43,10 @@ ISR(INT1_vect)	//vektorn som g?r ig?ng n?r transmit_payload lyckats s?nda eller 
 
 ISR(USART_RX_vect)	///Vector that triggers when computer sends something to the Atmega88
 {
+    SETBIT(PORTB, 2); //led on
+    _delay_ms(150);
+    CLEARBIT(PORTB, 2); //led off
+    
     uint8_t W_buffer[dataLen];	//Creates a buffer to receive data with specified length (ex. dataLen = 5 bytes)
     
     int i;
@@ -85,7 +89,7 @@ void INT1_interrupt_init(void){
 int main(void)
 {    
     init_led();    
-    _delay_ms(100);
+    _delay_ms(5000);
         
     USART_Init();
     InitSPI();
@@ -97,11 +101,14 @@ int main(void)
       
     
     USART_Transmit('0');
-    //USART_Transmit(GetReg(STATUS));
+    USART_Transmit(GetReg(STATUS));
     
     CLEARBIT(PORTB, 2);
     sei();//разрешение прерываний
-    while(1){}
+    
+    while(1){
+        
+    }
     
     
     
