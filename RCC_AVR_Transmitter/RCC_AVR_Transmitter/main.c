@@ -1,9 +1,9 @@
 /*
- * RCC_AVR_Transmitter.c
- *
- * Created: 31/01/2016 14:04:18
- * Author : Artem
- */ 
+* RCC_AVR_Transmitter.c
+*
+* Created: 31/01/2016 14:04:18
+* Author : Artem
+*/
 
 #include <avr/io.h>
 #include <stdio.h>
@@ -14,6 +14,45 @@
 
 int dataLen = 1;
 
+void LedOn()
+{
+    SETBIT(PORTB, 2); //led on
+}
+
+void LedOff()
+{
+    CLEARBIT(PORTB, 2); //led off
+}
+
+void LedBlink(int duration)
+{
+    LedOn();
+    
+    duration /= 10;
+    
+    while(duration--) {
+        _delay_ms(10);
+    }
+    
+    LedOff();
+}
+
+ISR(INT0_vect)
+{
+    cli();	//Disable global interrupt
+
+    LedBlink(50);
+
+    uint8_t W_buffer[dataLen];
+
+    W_buffer[0] = '0';
+    transmit_payload(W_buffer);
+    USART_Transmit(W_buffer[0]);
+    
+
+    sei();
+}
+
 ISR(INT1_vect)	//vektorn som g?r ig?ng n?r transmit_payload lyckats s?nda eller n?r receive_payload f?tt data OBS: d? Mask_Max_rt ?r satt i config registret s? g?r den inte ig?ng n?r MAX_RT ?r uppn?d ? s?ndninge nmisslyckats!
 {
     cli();	//Disable global interrupt
@@ -22,10 +61,9 @@ ISR(INT1_vect)	//vektorn som g?r ig?ng n?r transmit_payload lyckats s?nda eller 
     
     SetCELow();
     
-    SETBIT(PORTB, 2); //led on
-    _delay_ms(150);
-    CLEARBIT(PORTB, 2); //led off
+    LedBlink(50);
     
+    /*
     //Receiver function to print out on usart:
     //data=WriteToNrf(R, R_RX_PAYLOAD, data, dataLen);	//l?s ut mottagen data
     //reset();
@@ -34,18 +72,16 @@ ISR(INT1_vect)	//vektorn som g?r ig?ng n?r transmit_payload lyckats s?nda eller 
     //{
     //USART_Transmit(data[i]);
     //}
-    //
+    //*/
 
     USART_Transmit('2');
-    sei();    
+    sei();
 }
- 
+
 
 ISR(USART_RX_vect)	///Vector that triggers when computer sends something to the Atmega88
 {
-    SETBIT(PORTB, 2); //led on
-    _delay_ms(150);
-    CLEARBIT(PORTB, 2); //led off
+    LedBlink(50);
     
     uint8_t W_buffer[dataLen];	//Creates a buffer to receive data with specified length (ex. dataLen = 5 bytes)
     
@@ -58,73 +94,56 @@ ISR(USART_RX_vect)	///Vector that triggers when computer sends something to the 
     }
 
     transmit_payload(W_buffer);	//S?nder datan
-            
+    
     USART_Transmit('#');	//visar att chipet mottagit datan...
 }
 
-void init_led(void){
+void init_led(void)
+{
     DDRB |= (1<<PB2); // init PB2 as output for led
     
-    SETBIT(PORTB, 2);
-    _delay_ms(1000);
-    CLEARBIT(PORTB, 2); //led off
+    LedBlink(500);
 }
 
-
-void INT1_interrupt_init(void){
-    DDRD &= ~(1<<DDD3);	//Extern interrupt p? INT1, dvs s?tt den till input!    
+void INT01_interrupt_init(void)
+{
+    DDRD &= ~(1<<DDD2);	//Extern interrupt p? INT0, dvs s?tt den till input!
+    CLEARBIT(PORTD, 2);
+    
+    DDRD &= ~(1<<DDD3);	//Extern interrupt p? INT1, dvs s?tt den till input!
     CLEARBIT(PORTD, 3);
-       
-    MCUCR |= (1<<ISC01);// INT1 falling edge	PD3
-    MCUCR &= ~(1<<ISC00);// INT1 falling edge	PD3
+            
+    MCUCR |= (1<<ISC00);// INT0 raising edge	PD2
+    MCUCR |= (1<<ISC01);// INT0 raising edge	PD2
 
+    MCUCR |= (0<<ISC10);// INT1 falling edge	PD3
+    MCUCR |= (1<<ISC11);// INT1 falling edge	PD3
+
+    GIMSK |= (1<<INT0);	//enable int0
     GIMSK |= (1<<INT1);	//enable int1
-       
-    //GIMSK=0b11000000; //разрешаем прерывание int0 и int1 -  кнопка
-    //MCUCR=0b00001111;// int by rising front -  для кнопки 1 и 2
-    EIFR=0b01000000;          
 }
-
 
 int main(void)
-{    
-    init_led();    
+{
+    init_led();
     _delay_ms(5000);
-        
+    
+    LedOn();
+    _delay_ms(1000);     
+    
     USART_Init();
     InitSPI();
-    INT1_interrupt_init();   
+    INT01_interrupt_init();      
     
-    SETBIT(PORTB, 2); 
-    
-    nrf24L01_init();
-      
+    nrf24L01_init();    
     
     USART_Transmit('0');
     USART_Transmit(GetReg(STATUS));
     
-    CLEARBIT(PORTB, 2);
+    LedOff();
     sei();//разрешение прерываний
     
-    while(1){
-        
-    }
-    
-    
-    
-    /*
-    char data;
-    
-    while (1)
-    {
-        data = USART_Receive();
-        
-        if(data != '0')
-        {
-            USART_Transmit(data);
-        }
-    }
-    */
+    while(1){}
 }
 
 
