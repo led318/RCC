@@ -46,7 +46,7 @@ ISR(INT0_vect)
     uint8_t W_buffer[dataLen];
     W_buffer[0] = '0';
     
-    //transmit_payload(W_buffer);
+    transmit_payload(W_buffer);
     USART_Transmit(W_buffer[0]);
     USART_Transmit(GetReg(STATUS));  
 

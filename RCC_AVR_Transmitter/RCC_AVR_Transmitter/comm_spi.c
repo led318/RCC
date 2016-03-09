@@ -193,7 +193,7 @@ void nrf24L01_init(void)
     WriteToNrf(W, RX_PW_P0, val, 1);
     
     //CONFIG reg setup - Nu ?r allt inst?llt, boota upp nrf'en och g?r den antingen Transmitter lr Reciver
-    val[0]=0x1E;  //0b0000 1110 config registry	bit "1":1=power up,  bit "0":0=transmitter (bit "0":1=Reciver) (bit "4":1=>mask_Max_RT,dvs IRQ-vektorn reagerar inte om s?ndningen misslyckades.
+    val[0]=0b00011110;  //0b0000 1110 config registry	bit "1":1=power up,  bit "0":0=transmitter (bit "0":1=Reciver) (bit "4":1=>mask_Max_RT,dvs IRQ-vektorn reagerar inte om s?ndningen misslyckades.
     WriteToNrf(W, CONFIG, val, 1);
 
     //device need 1.5ms to reach standby mode
