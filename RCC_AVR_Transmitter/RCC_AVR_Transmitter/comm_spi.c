@@ -209,8 +209,7 @@ void transmit_payload(uint8_t * W_buff)
     
     WriteToNrf(R, W_TX_PAYLOAD, W_buff, dataLen);	//skickar datan i W_buff till nrf-en (obs g?r ej att l?sa w_tx_payload-registret!!!)
     
-    //sei();	//enable global interrupt- redan p?!
-    //USART_Transmit(GetReg(STATUS));
+    //sei();	//enable global interrupt- redan p?!    
 
     _delay_ms(10);		//beh?ver det verkligen vara ms ? inte us??? JAAAAAA! annars funkar det inte!!!
     SetCEHigh();

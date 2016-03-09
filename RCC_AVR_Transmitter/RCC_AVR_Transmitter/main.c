@@ -44,10 +44,11 @@ ISR(INT0_vect)
     LedBlink(50);
 
     uint8_t W_buffer[dataLen];
-
     W_buffer[0] = '0';
-    transmit_payload(W_buffer);
+    
+    //transmit_payload(W_buffer);
     USART_Transmit(W_buffer[0]);
+    USART_Transmit(GetReg(STATUS));  
 
     sei();
 }
@@ -125,7 +126,7 @@ void INT01_interrupt_init(void)
 int main(void)
 {
     init_led();
-    _delay_ms(5000);
+    _delay_ms(3000);
     
     LedOn();
     _delay_ms(1000);     

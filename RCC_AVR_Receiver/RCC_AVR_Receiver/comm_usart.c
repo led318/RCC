@@ -33,7 +33,7 @@ void USART_Init()
     */
     
     UBRR0H = 0x00; //MYUBRR >> 8;    
-    UBRR0L = 0xBF; //MYUBRR;
+    UBRR0L = 0x0B; //MYUBRR;
     UCSR0B = ((1<<RXEN0)|(1<<TXEN0) | (1<<RXCIE0));    
 }
 

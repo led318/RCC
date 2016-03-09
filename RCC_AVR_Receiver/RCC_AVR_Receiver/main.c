@@ -38,30 +38,34 @@ void LedBlink(int duration)
     LedOff();
 }
 
+/*
 ISR(INT0_vect)	//vektorn som g?r ig?ng n?r transmit_payload lyckats s?nda eller n?r receive_payload f?tt data OBS: d? Mask_Max_rt ?r satt i config registret s? g?r den inte ig?ng n?r MAX_RT ?r uppn?d ? s?ndninge nmisslyckats!
 {
-    cli();	//Disable global interrupt
-    
-    LedBlink(50);
-    
-    //USART_Transmit('1');
-    
-    SetCELow();
-    
-    //Receiver function to print out on usart:
-    data = WriteToNrf(R, R_RX_PAYLOAD, data, dataLen);	//l?s ut mottagen data
-    reset();
-    
-    for (int i=0;i<dataLen;i++)
-    {
-        USART_Transmit(data[i]);
-    }
-    
-    sei();
+cli();	//Disable global interrupt
+
+LedBlink(50);
+
+USART_Transmit('$');
+
+SetCELow();
+
+//Receiver function to print out on usart:
+//data = WriteToNrf(R, R_RX_PAYLOAD, data, dataLen);	//l?s ut mottagen data
+//reset();
+
+//for (int i=0;i<dataLen;i++)
+//{
+//    USART_Transmit(data[i]);
+//}
+
+sei();
 }
+*/
 
 ISR(USART_RX_vect)	///Vector that triggers when computer sends something to the Atmega88
 {
+    cli();
+    
     LedBlink(50);
     
     uint8_t W_buffer[dataLen];	//Creates a buffer to receive data with specified length (ex. dataLen = 5 bytes)
@@ -73,10 +77,13 @@ ISR(USART_RX_vect)	///Vector that triggers when computer sends something to the 
         USART_Transmit(W_buffer[i]);	//Transmit the Data back to the computer to make sure it was correctly received
         //This probably should wait until all the bytes is received, but works fine in to send and receive at the same time... =)
     }
-    
-    transmit_payload(W_buffer);	//S?nder datan
+
+    //transmit_payload(W_buffer);	//S?nder datan
+    USART_Transmit(GetReg(STATUS));
     
     USART_Transmit('#');	//visar att chipet mottagit datan...
+    
+    sei();
 }
 
 void init_led(void){
@@ -101,7 +108,7 @@ int main(void)
 {
     init_led();
     
-    _delay_ms(5000);
+    _delay_ms(3000);
     
     LedOn();
     _delay_ms(1000);
@@ -110,15 +117,18 @@ int main(void)
     InitSPI();
     INT0_interrupt_init();
     
-    //nrf24L01_init();
+    nrf24L01_init();
     
     USART_Transmit('0');
-    //USART_Transmit(GetReg(STATUS));
+    USART_Transmit(GetReg(STATUS));
     
     sei();//разрешение прерываний
     LedOff();
 
-    while(1){}
+    while(1){
+        //reset();
+        //receive_payload();
+    }
 }
 
 

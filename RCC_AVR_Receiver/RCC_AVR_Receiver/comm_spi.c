@@ -48,28 +48,48 @@ void InitSPI(void)
     SetCELow();
     */
     
-    DDRB |= (1<<PORTB5); //sck
-    DDRB |= (1<<PORTB3); //mosi
-    DDRD |= (1<<PORTD4); //csn
-    //DDRB &= ~(1<<PORTB3);  
+    DDRB |= (1<<DDB5); //sck
+    PORTB &= ~(1<<DDB5);
     
-    DDRB |= (1<<PORTB0); //CE
+    DDRB |= (1<<DDB3); //mosi
+    PORTB &= ~(1<<DDB3);
     
-    //PORTD &= ~(1<<PORTD4);
+    DDRB |= (1<<DDB2); //ss
+    PORTB &= ~(1<<DDB2);
     
-    SPCR |= (1<<SPE)|(1<<MSTR);    
+    DDRB &= ~(1<<DDB4); //miso
+    PORTB |= (1<<DDB4);
+
+
+
+    SPCR |= (1<<SPE)|(1<<MSTR)|(1<<SPR0);
+
+
+    DDRD |= (1<<DDD4); //csn
+    DDRB |= (1<<DDB0); //CE            
     
     SetCSNHigh();
     SetCELow();
 }
 
 char WriteByteSPI(unsigned char cData)
-{  
-    SPDR = cData;        
+{
+    SPDR = cData;
     
     while(!(SPSR & (1 << SPIF)));
     
     return SPDR;
+}
+
+char WriteByteSPITest(unsigned char cData){
+    _delay_us(10);
+    SetCSNLow();
+    _delay_us(10);
+    char a = WriteByteSPI(cData);
+    _delay_us(10);
+    SetCSNHigh();
+    
+    return a;
 }
 
 uint8_t GetReg(uint8_t reg)
@@ -110,11 +130,11 @@ uint8_t *WriteToNrf(uint8_t ReadWrite, uint8_t reg, uint8_t *val, uint8_t antVal
     }
     
     //Static uint8_t f?r att det ska g? att returnera en array (l?gg m?rke till "*" uppe p? funktionen!!!)
-    static uint8_t ret[32];	//antar att det l?ngsta man vill l?sa ut n?r man kallar p? "R" ?r dataleng-l?ngt, dvs anv?nder man bara 1byte datalengd ? vill l?sa ut 5byte RF_Adress s? skriv 5 h?r ist!!!        
+    static uint8_t ret[32];	//antar att det l?ngsta man vill l?sa ut n?r man kallar p? "R" ?r dataleng-l?ngt, dvs anv?nder man bara 1byte datalengd ? vill l?sa ut 5byte RF_Adress s? skriv 5 h?r ist!!!
     
     _delay_us(10);		//alla delay ?r s? att nrfen ska hinna med! (microsekunder)
     SetCSNLow();
-    _delay_us(10);            
+    _delay_us(10);
     WriteByteSPI(reg);	//f?rsta SPI-kommandot efter CSN-l?g ber?ttar f?r nrf'en vilket av dess register som ska redigeras ex: 0b0010 0001 write to registry EN_AA
     _delay_us(10);
     
@@ -141,7 +161,7 @@ uint8_t *WriteToNrf(uint8_t ReadWrite, uint8_t reg, uint8_t *val, uint8_t antVal
 }
 
 void nrf24L01_init(void)
-{        
+{
     _delay_ms(100);	//allow radio to reach power down if shut down
     
     uint8_t val[5];	//en array av integers som skickar v?rden till WriteToNrf-funktionen
@@ -149,7 +169,7 @@ void nrf24L01_init(void)
     //EN_AA - (auto-acknowledgements) - Transmittern f?r svar av recivern att packetet kommit fram, grymt!!! (beh?ver endast vara enablad p? Transmittern!)
     //Kr?ver att Transmittern ?ven har satt SAMMA RF_Adress p? sin mottagarkanal nedan ex: RX_ADDR_P0 = TX_ADDR
     val[0]=0x01;	//ger f?rsta integern i arrayen "val" ett v?rde: 0x01=EN_AA p? pipe P0.
-    WriteToNrf(W, EN_AA, val, 1);	//W=ska skriva/?ndra n?t i nrfen, EN_AA=vilket register ska ?ndras, val=en array med 1 till 32 v?rden  som ska skrivas till registret, 1=antal v?rden som ska l?sas ur "val" arrayen.        
+    WriteToNrf(W, EN_AA, val, 1);	//W=ska skriva/?ndra n?t i nrfen, EN_AA=vilket register ska ?ndras, val=en array med 1 till 32 v?rden  som ska skrivas till registret, 1=antal v?rden som ska l?sas ur "val" arrayen.
     
     //SETUP_RETR (the setup for "EN_AA")
     val[0]=0x2F;	//0b0010 00011 "2" sets it up to 750uS delay between every retry (at least 500us at 250kbps and if payload >5bytes in 1Mbps, and if payload >15byte in 2Mbps) "F" is number of retries (1-15, now 15)
@@ -192,7 +212,7 @@ void nrf24L01_init(void)
     WriteToNrf(W, RX_PW_P0, val, 1);
     
     //CONFIG reg setup - Nu ?r allt inst?llt, boota upp nrf'en och g?r den antingen Transmitter lr Reciver
-    val[0]=0x1E;  //0b0000 1110 config registry	bit "1":1=power up,  bit "0":0=transmitter (bit "0":1=Reciver) (bit "4":1=>mask_Max_RT,dvs IRQ-vektorn reagerar inte om s?ndningen misslyckades.
+    val[0]=0b00011111;  //0b0000 1110 config registry	bit "1":1=power up,  bit "0":0=transmitter (bit "0":1=Reciver) (bit "4":1=>mask_Max_RT,dvs IRQ-vektorn reagerar inte om s?ndningen misslyckades.
     WriteToNrf(W, CONFIG, val, 1);
 
     //device need 1.5ms to reach standby mode
