@@ -34,17 +34,17 @@
 
 void LedOn()
 {
-    SETBIT(PORTB, 2); //led on
+    SETBIT(PORTD, 7); //led on
 }
 
 void LedOff()
 {
-    CLEARBIT(PORTB, 2); //led off
+    CLEARBIT(PORTD, 7); //led off
 }
 
 void LedBlink(int duration)
 {
-    USART_Transmit('L');     
+    USART_Transmit('L');
     LedOn();
     
     while(duration--) {
@@ -56,7 +56,7 @@ void LedBlink(int duration)
 
 void init_led(void)
 {
-    DDRB |= (1<<PB2); // init PB2 as output for led
+    DDRD |= (1<<PORTD7); // init PD7 as output for led
     
     LedBlink(50);
 }

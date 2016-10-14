@@ -5,114 +5,78 @@
 * Author : Artem
 */
 
+#define F_CPU 8000000UL  // 8 MHz
+
 #include <avr/io.h>
 #include <stdio.h>
-#define F_CPU 8000000UL  // 8 MHz
 #include <util/delay.h>
 #include <avr/interrupt.h>
+#include "USART.h"
+#include "SPI.h"
 #include "nRF24L01.h"
+#include "pins_actions.h"
 
-int dataLen = 1;
-
-void LedOn()
-{
-    SETBIT(PORTB, 2); //led on
-}
-
-void LedOff()
-{
-    CLEARBIT(PORTB, 2); //led off
-}
-
-void LedBlink(int duration)
-{
-    LedOn();
-    
-    duration /= 10;
-    
-    while(duration--) {
-        _delay_ms(10);
-    }
-    
-    LedOff();
-}
+unsigned char data;
 
 ISR(INT0_vect)
 {
     cli();	//Disable global interrupt
 
-    LedBlink(50);
-
-    uint8_t W_buffer[dataLen];
-    W_buffer[0] = '0';
+    LedBlink(5);  
     
-    transmit_payload(W_buffer);
-    USART_Transmit(W_buffer[0]);
-    USART_Transmit(GetReg(STATUS));  
+    data = '4';    
+    
+    USART_Transmit(data);
+    
+    nrf24l01_Sent_data_Ret(data);
+    
+    USART_Transmit(nrf24l01_getstatus);
 
     sei();
 }
 
 ISR(INT1_vect)	//vektorn som g?r ig?ng n?r transmit_payload lyckats s?nda eller n?r receive_payload f?tt data OBS: d? Mask_Max_rt ?r satt i config registret s? g?r den inte ig?ng n?r MAX_RT ?r uppn?d ? s?ndninge nmisslyckats!
 {
-    cli();	//Disable global interrupt
+    cli();
     
-    USART_Transmit('1');
+    data=nrf24l01_getstatus;
+    USART_Transmit(data);
+    if(data&0b01000000)
+    {
+        //отправляем принятые данные через UART
+        USART_Transmit(nrf24l01_read_data());
+        //сбрасываем прерывание по приему пакета
+        nrf24l01_sc_bit(STATUS,RX_DR,1);
+    }
     
-    SetCELow();
+    _delay_us(10);
     
-    LedBlink(50);
-    
-    /*
-    //Receiver function to print out on usart:
-    //data=WriteToNrf(R, R_RX_PAYLOAD, data, dataLen);	//l?s ut mottagen data
-    //reset();
-    //
-    //for (int i=0;i<dataLen;i++)
-    //{
-    //USART_Transmit(data[i]);
-    //}
-    //*/
-
-    USART_Transmit('2');
     sei();
 }
 
-
-ISR(USART_RX_vect)	///Vector that triggers when computer sends something to the Atmega88
+ISR(USART_RX_vect)	///Vector that triggers when computer sends something to the controller
 {
-    LedBlink(50);
+    cli();
     
-    uint8_t W_buffer[dataLen];	//Creates a buffer to receive data with specified length (ex. dataLen = 5 bytes)
-    
-    int i;
-    for (i=0;i<dataLen;i++)
-    {
-        W_buffer[i]=USART_Receive();	//receive the USART
-        USART_Transmit(W_buffer[i]);	//Transmit the Data back to the computer to make sure it was correctly received
-        //This probably should wait until all the bytes is received, but works fine in to send and receive at the same time... =)
-    }
+    data=USART_Receive();	//receive the USART
+    USART_Transmit(data);	//Transmit the Data back to the computer to make sure it was correctly received
 
-    transmit_payload(W_buffer);	//S?nder datan
-    
+    nrf24l01_Sent_data_Ret(data);	//send data to nrf
+
+    USART_Transmit(nrf24l01_getstatus);
     USART_Transmit('#');	//visar att chipet mottagit datan...
-}
-
-void init_led(void)
-{
-    DDRB |= (1<<PB2); // init PB2 as output for led
     
-    LedBlink(500);
+    sei();
 }
 
-void INT01_interrupt_init(void)
+void init_interrupt(void)
 {
     DDRD &= ~(1<<DDD2);	//Extern interrupt p? INT0, dvs s?tt den till input!
     CLEARBIT(PORTD, 2);
     
     DDRD &= ~(1<<DDD3);	//Extern interrupt p? INT1, dvs s?tt den till input!
     CLEARBIT(PORTD, 3);
-            
+    
     MCUCR |= (1<<ISC00);// INT0 raising edge	PD2
     MCUCR |= (1<<ISC01);// INT0 raising edge	PD2
 
@@ -125,20 +89,36 @@ void INT01_interrupt_init(void)
 
 int main(void)
 {
+    USART_Init();    
+    USART_Transmit('0');    
+    
     init_led();
     _delay_ms(3000);
     
     LedOn();
-    _delay_ms(1000);     
+    _delay_ms(1000);
     
-    USART_Init();
-    InitSPI();
-    INT01_interrupt_init();      
+    SPI_MasterInit();//инициализация SPI
+    nRF24L01_init(0b00000011);//инициализация модуля
+    init_interrupt();
+    nrf24l01_RX_TX_mode(PRX);//переходим в режим приемника
     
-    nrf24L01_init();    
+    USART_Transmit('1');
+    USART_Transmit(nrf24l01_getstatus);
     
-    USART_Transmit('0');
-    USART_Transmit(GetReg(STATUS));    
+    USART_Transmit(nrf24l01_readregister(EN_AA));
+    USART_Transmit(nrf24l01_readregister(EN_RXADDR));
+    USART_Transmit(nrf24l01_readregister(SETUP_AW));
+    USART_Transmit(nrf24l01_readregister(SETUP_RETR));
+    USART_Transmit(nrf24l01_readregister(RF_CH));
+    USART_Transmit(nrf24l01_readregister(RF_SETUP));
+    USART_Transmit(nrf24l01_readregister(STATUS));
+    USART_Transmit(nrf24l01_readregister(OBSERVE_TX));
+    USART_Transmit(nrf24l01_readregister(CD));
+    USART_Transmit(nrf24l01_readregister(RX_ADDR_P0));
+    USART_Transmit(nrf24l01_readregister(TX_ADDR));
+    USART_Transmit(nrf24l01_readregister(RX_PW_P0));
+    USART_Transmit(nrf24l01_readregister(FIFO_STATUS));    
     
     LedOff();
     sei();//разрешение прерываний

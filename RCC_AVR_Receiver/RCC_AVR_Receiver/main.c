@@ -5,94 +5,103 @@
 * Author : Artem
 */
 
+#define F_CPU 3686400UL
+
 #include <avr/io.h>
 #include <stdio.h>
-#define F_CPU 3686400UL
 #include <util/delay.h>
 #include <avr/interrupt.h>
+#include "SPI.h"
+#include "USART.h"
 #include "nRF24L01.h"
+#include "pins_actions.h"
+#include "SERVO.h"
+#include "ENGINE.h"
 
-int dataLen = 1;
-uint8_t *data;
+#define turn_direction_mask 0x1f
+#define turn_direction_bit 0x04
+#define turn_power_mask 0x0f
 
-void LedOn()
-{
-    SETBIT(PORTD, 7); //led on
+#define engine_subcommand_bit0 0x05
+#define engine_subcommand_bit1 0x06
+#define engine_subcommand_bit2 0x07
+#define engine_direction_bit 0x02
+#define engine_power_mask 0x03
+
+unsigned char data;
+
+int get_engine_subcommand(int command){
+    int bit0 = (command >> engine_subcommand_bit0) & 1;
+    int bit1 = (command >> engine_subcommand_bit1) & 1;
+    int bit2 = (command >> engine_subcommand_bit2) & 1;    
+    
+    int subcommand = 0;
+    subcommand |= bit0 << 0;
+    subcommand |= bit1 << 1;
+    subcommand |= bit2 << 2;
+    
+    return subcommand;
 }
 
-void LedOff()
-{
-    CLEARBIT(PORTD, 7); //led off
+void process_command(int command){
+    int turn_subcommand = command & turn_direction_mask;// command &  //turn_bits_mask;    
+    
+    int turn_direction = (turn_subcommand >> turn_direction_bit) & 1;
+    int turn_power = turn_subcommand & turn_power_mask;
+
+    SERVO_turn_int(turn_direction, turn_power);    
+    
+    int engine_subcommand = get_engine_subcommand(command);
+    int engine_direction = (engine_subcommand >> engine_direction_bit) & 1;
+    int engine_power = engine_subcommand & engine_power_mask;
+    
+    ENGINE_set_int(engine_direction, engine_power);
+    //ENGINE_set_int(turn_direction, turn_power);
+    
+    //USART_Transmit(engine_direction);
+    //USART_Transmit(engine_power);
+    //USART_Transmit(turn_power);
 }
 
-void LedBlink(int duration)
-{
-    LedOn();
-    
-    duration /= 10;
-    
-    while(duration--) {
-        _delay_ms(10);
-    }
-    
-    LedOff();
-}
-
-/*
 ISR(INT0_vect)	//vektorn som g?r ig?ng n?r transmit_payload lyckats s?nda eller n?r receive_payload f?tt data OBS: d? Mask_Max_rt ?r satt i config registret s? g?r den inte ig?ng n?r MAX_RT ?r uppn?d ? s?ndninge nmisslyckats!
-{
-cli();	//Disable global interrupt
-
-LedBlink(50);
-
-USART_Transmit('$');
-
-SetCELow();
-
-//Receiver function to print out on usart:
-//data = WriteToNrf(R, R_RX_PAYLOAD, data, dataLen);	//l?s ut mottagen data
-//reset();
-
-//for (int i=0;i<dataLen;i++)
-//{
-//    USART_Transmit(data[i]);
-//}
-
-sei();
-}
-*/
-
-ISR(USART_RX_vect)	///Vector that triggers when computer sends something to the Atmega88
 {
     cli();
     
-    LedBlink(50);
-    
-    uint8_t W_buffer[dataLen];	//Creates a buffer to receive data with specified length (ex. dataLen = 5 bytes)
-    
-    int i;
-    for (i=0;i<dataLen;i++)
-    {
-        W_buffer[i]=USART_Receive();	//receive the USART
-        USART_Transmit(W_buffer[i]);	//Transmit the Data back to the computer to make sure it was correctly received
-        //This probably should wait until all the bytes is received, but works fine in to send and receive at the same time... =)
-    }
+    LedBlink(5);
 
-    //transmit_payload(W_buffer);	//S?nder datan
-    USART_Transmit(GetReg(STATUS));
+    data=nrf24l01_getstatus;
+    if(data&0b01000000)
+    {
+        //отправляем принятые данные через UART
+        USART_Transmit(nrf24l01_read_data());
+        //сбрасываем прерывание по приему пакета
+        nrf24l01_sc_bit(STATUS,RX_DR,1);
+    }
     
-    USART_Transmit('#');	//visar att chipet mottagit datan...
+    _delay_us(10);
+    
+    sei();    
+}
+
+ISR(USART_RX_vect)	///Vector that triggers when computer sends something to the Atmega88
+{
+    cli();    
+    
+    data=USART_Receive();	//receive the USART
+	
+	process_command(data);
+	
+    //USART_Transmit(data);	//Transmit the Data back to the computer to make sure it was correctly received
+
+    //nrf24l01_Sent_data_Ret(data);	//send data to nrf
+
+    //USART_Transmit(nrf24l01_getstatus);
+    //USART_Transmit('#');	//visar att chipet mottagit datan...
     
     sei();
 }
 
-void init_led(void){
-    DDRD |= (1<<PORTD7); // init PB7 as output for led
-    
-    LedBlink(500);
-}
-
-void INT0_interrupt_init(void){
+void init_interrupt(void){
     DDRD &= ~(1<<DDD2);	//Extern interrupt p? INT0, dvs s?tt den till input!
     CLEARBIT(PORTD, 2);
     
@@ -106,29 +115,47 @@ void INT0_interrupt_init(void){
 
 int main(void)
 {
-    init_led();
+    USART_Init();
+    USART_Transmit('0');
     
+    init_led();
     _delay_ms(3000);
     
     LedOn();
     _delay_ms(1000);
     
-    USART_Init();
-    InitSPI();
-    INT0_interrupt_init();
+    //USART_Init();
+    SPI_MasterInit();//инициализация SPI
+    nRF24L01_init(0b00000011);//инициализация модуля
+    init_interrupt();
+    nrf24l01_RX_TX_mode(PRX);//переходим в режим приемника
     
-    nrf24L01_init();
-    
-    USART_Transmit('0');
-    USART_Transmit(GetReg(STATUS));
+    USART_Transmit('1');
+    USART_Transmit(nrf24l01_getstatus);
+
+    USART_Transmit(nrf24l01_readregister(EN_AA));
+    USART_Transmit(nrf24l01_readregister(EN_RXADDR));
+    USART_Transmit(nrf24l01_readregister(SETUP_AW));
+    USART_Transmit(nrf24l01_readregister(SETUP_RETR));
+    USART_Transmit(nrf24l01_readregister(RF_CH));
+    USART_Transmit(nrf24l01_readregister(RF_SETUP));
+    USART_Transmit(nrf24l01_readregister(STATUS));
+    USART_Transmit(nrf24l01_readregister(OBSERVE_TX));
+    USART_Transmit(nrf24l01_readregister(CD));
+    USART_Transmit(nrf24l01_readregister(RX_ADDR_P0));
+    USART_Transmit(nrf24l01_readregister(TX_ADDR));
+    USART_Transmit(nrf24l01_readregister(RX_PW_P0));
+    USART_Transmit(nrf24l01_readregister(FIFO_STATUS));
+
+    LedOff();
+	
+	SERVO_init();	
+	ENGINE_init();
     
     sei();//разрешение прерываний
-    LedOff();
 
-    while(1){
-        //reset();
-        //receive_payload();
-    }
+    while(1){}
 }
+
 
 

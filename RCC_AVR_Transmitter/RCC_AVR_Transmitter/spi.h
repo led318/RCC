@@ -1,39 +1,32 @@
-/*
-    Copyright (c) 2007 Stefan Engelke <mbox@stefanengelke.de>
 
-    Permission is hereby granted, free of charge, to any person 
-    obtaining a copy of this software and associated documentation 
-    files (the "Software"), to deal in the Software without 
-    restriction, including without limitation the rights to use, copy, 
-    modify, merge, publish, distribute, sublicense, and/or sell copies 
-    of the Software, and to permit persons to whom the Software is 
-    furnished to do so, subject to the following conditions:
+//ножки интерфейса SPI в Attiny2313
+#define SS    4
+#define MOSI  5
+#define MISO  6
+#define SCK   7
 
-    The above copyright notice and this permission notice shall be 
-    included in all copies or substantial portions of the Software.
+//порт интерфейса  SPI в Attiny2313
+#define SPI_DDR DDRB
 
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
-    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
-    DEALINGS IN THE SOFTWARE.
+// Функция инициализации мастера шины SPI
+void SPI_MasterInit(void)
+{
+    // Установка выводов SPI на вывод
+    SPI_DDR|=(1<<SS)|(1<<MISO)|(1<<SCK);
+    SPI_DDR&= ~(1<<MOSI);    
+}
 
-    $Id$
-*/
-
-#ifndef _SPI_H_
-#define _SPI_H_
-
-#include <avr/io.h>
-
-
-extern void spi_init();
-extern void spi_transfer_sync (uint8_t * dataout, uint8_t * datain, uint8_t len);
-extern void spi_transmit_sync (uint8_t * dataout, uint8_t len);
-extern uint8_t spi_fast_shift (uint8_t data);
-
-
-#endif /* _SPI_H_ */
+/* Функция передачи байта данных outData. Ожидает окончания
+передачи и возвращает принятый по ножке MOSI байт */
+unsigned char SPI_MasterTransmit(char outData)
+{
+    USIDR = outData;// Начало передачи
+           
+    USISR |= (1<<USIOIF); // clear flag to be able to receive new data
+    while(!(USISR & (1<<USIOIF))) // Wait for transmission complete
+    {
+        USICR |= (1<<USIWM0) | (1<<USICS1) | (1<<USICLK) | (1<<USITC);
+    }
+    
+    return (USIDR); //возвращаем принятый байт
+}
