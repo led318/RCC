@@ -1,11 +1,9 @@
 #include <avr/io.h>
 
-#define eng_middle 128
+#define eng_min 0
+#define eng_max 255
 #define eng_steps_number 3
-#define eng_max_angle 126
-#define eng_min_angle eng_max_angle / eng_steps_number
-#define eng_min eng_middle - eng_max_angle
-#define eng_max eng_middle + eng_max_angle
+#define eng_step (eng_max - eng_min) / eng_steps_number
 
 int current;
 
@@ -26,15 +24,20 @@ void ENGINE_set(int value){
 }
 
 void ENGINE_set_int(int direction, int power){
-    if(direction == 0){
-        direction = -1;
+    int new_angle = 0;
+    
+    if(direction){
+        new_angle = eng_min + (eng_step * power);    
+        CLEARBIT(PORTC, 2);        
+    } else {
+        new_angle = eng_max - (eng_step * power);
+        SETBIT(PORTC, 2);                
     }
-
-    int new_angle = eng_middle + (direction * eng_min_angle * power);
+    
     ENGINE_set(new_angle);
 }
 
-void ENGINE_set_middle(){
+void ENGINE_set_stop(){
     ENGINE_set_int(0, 0);
 }
 
@@ -43,6 +46,7 @@ void ENGINE_init(){
     TCCR0B|=(1 << CS01);
     
     DDRD|=(1<<DDD5)|(1<<DDD6);	//PWM Pins as Out
+    DDRC|=(1<<DDC2);
     
-    ENGINE_set_middle();
+    ENGINE_set_stop();
 }

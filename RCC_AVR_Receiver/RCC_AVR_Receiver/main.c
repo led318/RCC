@@ -55,8 +55,7 @@ void process_command(int command){
     int engine_direction = (engine_subcommand >> engine_direction_bit) & 1;
     int engine_power = engine_subcommand & engine_power_mask;
     
-    ENGINE_set_int(engine_direction, engine_power);
-    //ENGINE_set_int(turn_direction, turn_power);
+    ENGINE_set_int(engine_direction, engine_power);    
     
     //USART_Transmit(engine_direction);
     //USART_Transmit(engine_power);
@@ -65,6 +64,7 @@ void process_command(int command){
 
 ISR(INT0_vect)	//vektorn som g?r ig?ng n?r transmit_payload lyckats s?nda eller n?r receive_payload f?tt data OBS: d? Mask_Max_rt ?r satt i config registret s? g?r den inte ig?ng n?r MAX_RT ?r uppn?d ? s?ndninge nmisslyckats!
 {
+    /*
     cli();
     
     LedBlink(5);
@@ -81,6 +81,7 @@ ISR(INT0_vect)	//vektorn som g?r ig?ng n?r transmit_payload lyckats s?nda eller 
     _delay_us(10);
     
     sei();    
+    */
 }
 
 ISR(USART_RX_vect)	///Vector that triggers when computer sends something to the Atmega88
@@ -91,7 +92,7 @@ ISR(USART_RX_vect)	///Vector that triggers when computer sends something to the 
 	
 	process_command(data);
 	
-    //USART_Transmit(data);	//Transmit the Data back to the computer to make sure it was correctly received
+    USART_Transmit(data);	//Transmit the Data back to the computer to make sure it was correctly received
 
     //nrf24l01_Sent_data_Ret(data);	//send data to nrf
 
@@ -123,14 +124,15 @@ int main(void)
     
     LedOn();
     _delay_ms(1000);
-    
-    //USART_Init();
+        
     SPI_MasterInit();//инициализация SPI
-    nRF24L01_init(0b00000011);//инициализация модуля
+    //nRF24L01_init(0b00000011);//инициализация модуля
     init_interrupt();
-    nrf24l01_RX_TX_mode(PRX);//переходим в режим приемника
+    //nrf24l01_RX_TX_mode(PRX);//переходим в режим приемника
     
     USART_Transmit('1');
+    
+    /*    
     USART_Transmit(nrf24l01_getstatus);
 
     USART_Transmit(nrf24l01_readregister(EN_AA));
@@ -146,6 +148,7 @@ int main(void)
     USART_Transmit(nrf24l01_readregister(TX_ADDR));
     USART_Transmit(nrf24l01_readregister(RX_PW_P0));
     USART_Transmit(nrf24l01_readregister(FIFO_STATUS));
+    */    
 
     LedOff();
 	
